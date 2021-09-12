@@ -191,7 +191,6 @@ def uniformCostSearch(problem):
         parentNode = frontier.pop()
         # print("FRONTIER: ", frontier.isEmpty())
         # print("Parent node is ", parentNode.state)
-        print(parentNode.state)
 
         if(problem.isGoalState(parentNode.state)):
             print("FOUND SOLUTION")
@@ -214,7 +213,6 @@ def uniformCostSearch(problem):
                     next_dir = Directions.NORTH
 
                 solution.append(next_dir)
-                print("Current info:", next_dir, )
 
             final_solution = []
             for i in range(len(solution)):
@@ -229,7 +227,7 @@ def uniformCostSearch(problem):
             in_frontier = False
 
             temp_node = Node(parentNode, child[0])
-            next_action_cost = problem.getCostOfActions([child[1]])
+            next_action_cost = child[2]
             temp_node.setPathCost(parentNode.path_cost + next_action_cost)
 
             while(not frontier.isEmpty()):
