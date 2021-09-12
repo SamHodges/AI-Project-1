@@ -226,7 +226,7 @@ def uniformCostSearch(problem):
             frontier_path_cost = 0
 
             temp_node = Node(parentNode, child[0])
-            next_action_cost = problem.getCostOfActions(child[1])
+            next_action_cost = problem.getCostOfActions([child[1]])
             temp_node.setPathCost(parentNode.path_cost + next_action_cost)
 
             while(not frontier.isEmpty()):
