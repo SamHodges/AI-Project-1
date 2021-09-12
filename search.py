@@ -223,7 +223,6 @@ def uniformCostSearch(problem):
         for child in problem.getSuccessors(parentNode.state):
             temp_frontier = []
             in_frontier = False
-            frontier_path_cost = 0
 
             temp_node = Node(parentNode, child[0])
             next_action_cost = problem.getCostOfActions([child[1]])
@@ -255,7 +254,7 @@ def uniformCostSearch(problem):
                 frontier.push(temp_node, temp_node.path_cost)
 
 
-    return False
+    return []
 
 def nullHeuristic(state, problem=None):
     """
