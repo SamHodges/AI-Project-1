@@ -125,27 +125,13 @@ def depthFirstSearch(problem):
                 final_solution.append(solution[-(i+1)])
             return final_solution
 
-        explored.add(parentNode.state)
-        for child in problem.getSuccessors(parentNode.state):
-            temp_frontier = []
-            in_frontier = False
-
-            while(not frontier.isEmpty()):
-                cur_frontier = frontier.pop()
-                temp_frontier.append(cur_frontier)
-                # print(temp_frontier)
-                if cur_frontier.state == child[0]:
-                    in_frontier = True
-                    break
+        if parentNode.state not in explored:
+            explored.add(parentNode.state)
+            for child in problem.getSuccessors(parentNode.state):
+            
                 
 
-            for i in range(len(temp_frontier)):
-                frontier.push(temp_frontier[-(i+1)])
-
-            if (child[0] not in explored): #and not in_frontier):
-                # print("Looking at child ", child[0])
-                # print("Not in ", explored, " or ", temp_frontier)
-
+            
                 # print("adding to frontier: ", parentNode.state, parentNode.movement, child[0], child[1])
                 frontier.push(Node(parentNode, child[0], child[1]))
 
