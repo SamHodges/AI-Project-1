@@ -102,7 +102,6 @@ def depthFirstSearch(problem):
     #util.raiseNotDefined()
     from game import Directions
 
-    print "Start:", problem.getStartState()
     node = Node(None, problem.getStartState(), None)
     if(problem.isGoalState(node.state)):
         return []
@@ -112,9 +111,20 @@ def depthFirstSearch(problem):
 
     while(not frontier.isEmpty()):
         parentNode = frontier.pop()
-        # print("At node: ", parentNode.state, parentNode.movement)
-        # print("FRONTIER: ", frontier.isEmpty())
-        # print("Parent node is ", parentNode.state)
+
+
+        if(problem.isGoalState(parentNode.state)):
+            solution = []
+            node = parentNode
+            while (node.parent is not None):
+                solution.append(node.movement)
+                node = node.parent
+
+            final_solution = []
+            for i in range(len(solution)):
+                final_solution.append(solution[-(i+1)])
+            return final_solution
+
         explored.add(parentNode.state)
         for child in problem.getSuccessors(parentNode.state):
             temp_frontier = []
@@ -135,19 +145,6 @@ def depthFirstSearch(problem):
             if (child[0] not in explored): #and not in_frontier):
                 # print("Looking at child ", child[0])
                 # print("Not in ", explored, " or ", temp_frontier)
-                if(problem.isGoalState(child[0])):
-                    # print("FOUND SOLUTION")
-                    solution = []
-                    node = Node(parentNode, child[0], child[1])
-                    while (node.parent is not None):
-                        solution.append(node.movement)
-                        node = node.parent
-
-                    final_solution = []
-                    for i in range(len(solution)):
-                        final_solution.append(solution[-(i+1)])
-                    print("Final solution: ", final_solution)
-                    return final_solution
 
                 # print("adding to frontier: ", parentNode.state, parentNode.movement, child[0], child[1])
                 frontier.push(Node(parentNode, child[0], child[1]))
@@ -169,7 +166,7 @@ def uniformCostSearch(problem):
     from game import Directions
 
     print "Start:", problem.getStartState()
-    node = Node(None, problem.getStartState())
+    node = Node(None, problem.getStartState(), None)
     if(problem.isGoalState(node.state)):
         return []
     node.setPathCost(0)
@@ -183,31 +180,16 @@ def uniformCostSearch(problem):
         # print("Parent node is ", parentNode.state)
 
         if(problem.isGoalState(parentNode.state)):
-            print("FOUND SOLUTION")
             solution = []
             node = parentNode
 
             while (node.parent is not None):
-                x_dir = node.parent.state[0] - node.state[0]
-                y_dir = node.parent.state[1] - node.state[1]
-                next_dir = None
+                solution.append(node.movement)
                 node = node.parent
-
-                if x_dir > 0:
-                    next_dir = Directions.WEST
-                if x_dir < 0:
-                    next_dir = Directions.EAST
-                if y_dir > 0:
-                    next_dir = Directions.SOUTH
-                if y_dir < 0:
-                    next_dir = Directions.NORTH
-
-                solution.append(next_dir)
 
             final_solution = []
             for i in range(len(solution)):
                 final_solution.append(solution[-(i+1)])
-            print(final_solution)
             return final_solution
 
         explored.add(parentNode.state)
@@ -216,7 +198,7 @@ def uniformCostSearch(problem):
             temp_frontier = []
             in_frontier = False
 
-            temp_node = Node(parentNode, child[0])
+            temp_node = Node(parentNode, child[0], child[1])
             next_action_cost = child[2]
             temp_node.setPathCost(parentNode.path_cost + next_action_cost)
 

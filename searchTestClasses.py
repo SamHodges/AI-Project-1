@@ -105,7 +105,6 @@ class GraphSearch(SearchProblem):
     # Get all successors of a state
     def getSuccessors(self, state):
         self.expanded_states.append(state)
-        print("called method for state: ", state)
         return list(self.successors[state])
 
     # Calculate total cost of a sequence of actions
