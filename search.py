@@ -240,7 +240,71 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from game import Directions
+
+    print "Start:", problem.getStartState()
+    node = Node(None, problem.getStartState(), None)
+    node.setPathCost(0)
+    frontier = util.PriorityQueue()
+    frontier.push(node, node.path_cost + heuristic(node.state, problem))
+    explored = set()
+
+    while(not frontier.isEmpty()):
+        parentNode = frontier.pop()
+        # print("FRONTIER: ", frontier.isEmpty())
+        # print("Parent node is ", parentNode.state)
+
+        if(problem.isGoalState(parentNode.state)):
+            solution = []
+            node = parentNode
+
+            while (node.parent is not None):
+                solution.append(node.movement)
+                node = node.parent
+
+            final_solution = []
+            for i in range(len(solution)):
+                final_solution.append(solution[-(i+1)])
+            return final_solution
+
+        
+
+        # print("Expanding node", parentNode.state, ", already explored: ", explored, "already already explored?", parentNode.state in explored)
+        explored.add(parentNode.state)
+        for child in problem.getSuccessors(parentNode.state):
+            temp_frontier = []
+            in_frontier = False
+
+            temp_node = Node(parentNode, child[0], child[1])
+            next_action_cost = child[2]
+            temp_node.setPathCost(parentNode.path_cost + next_action_cost)
+
+            while(not frontier.isEmpty()):
+                cur_frontier = frontier.pop()
+                
+                if cur_frontier.state == child[0]:
+                    if (cur_frontier.path_cost > temp_node.path_cost):
+                        temp_frontier.append(temp_node)
+                    else:
+                        temp_frontier.append(cur_frontier)
+                    in_frontier = True
+                    break
+                else:
+                    temp_frontier.append(cur_frontier)
+                    
+                
+
+            for i in range(len(temp_frontier)):
+                frontier.push(temp_frontier[i], temp_frontier[i].path_cost + heuristic(temp_frontier[i].state, problem))
+            
+
+            if (child[0] not in explored and not in_frontier):
+                # print("Looking at child ", child[0], explored)
+                # print("Not in ", explored, " or ", temp_frontier)
+                frontier.push(temp_node, temp_node.path_cost + heuristic(temp_node.state, problem))
+
+
+    return []
 
 
 # Abbreviations
