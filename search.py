@@ -20,9 +20,10 @@ Pacman agents (in searchAgents.py).
 import util
 
 class Node:
-    def __init__(self, parent, state):
+    def __init__(self, parent, state, movement):
         self.parent = parent
         self.state = state
+        self.movement = movement
         path_cost = 0
 
     def setPathCost(self, path_cost):
@@ -102,7 +103,7 @@ def depthFirstSearch(problem):
     from game import Directions
 
     print "Start:", problem.getStartState()
-    node = Node(None, problem.getStartState())
+    node = Node(None, problem.getStartState(), None)
     if(problem.isGoalState(node.state)):
         return []
     frontier = util.Stack()
@@ -111,6 +112,7 @@ def depthFirstSearch(problem):
 
     while(not frontier.isEmpty()):
         parentNode = frontier.pop()
+        # print("At node: ", parentNode.state, parentNode.movement)
         # print("FRONTIER: ", frontier.isEmpty())
         # print("Parent node is ", parentNode.state)
         explored.add(parentNode.state)
@@ -121,6 +123,7 @@ def depthFirstSearch(problem):
             while(not frontier.isEmpty()):
                 cur_frontier = frontier.pop()
                 temp_frontier.append(cur_frontier)
+                # print(temp_frontier)
                 if cur_frontier.state == child[0]:
                     in_frontier = True
                     break
@@ -129,38 +132,25 @@ def depthFirstSearch(problem):
             for i in range(len(temp_frontier)):
                 frontier.push(temp_frontier[-(i+1)])
 
-            if (child[0] not in explored and not in_frontier):
-                print(child)
+            if (child[0] not in explored): #and not in_frontier):
                 # print("Looking at child ", child[0])
                 # print("Not in ", explored, " or ", temp_frontier)
                 if(problem.isGoalState(child[0])):
-                    print("FOUND SOLUTION")
+                    # print("FOUND SOLUTION")
                     solution = []
-                    node = Node(parentNode, child[0])
+                    node = Node(parentNode, child[0], child[1])
                     while (node.parent is not None):
-                        x_dir = node.parent.state[0] - node.state[0]
-                        y_dir = node.parent.state[1] - node.state[1]
-                        next_dir = None
+                        solution.append(node.movement)
                         node = node.parent
-
-                        if x_dir > 0:
-                            next_dir = Directions.WEST
-                        if x_dir < 0:
-                            next_dir = Directions.EAST
-                        if y_dir > 0:
-                            next_dir = Directions.SOUTH
-                        if y_dir < 0:
-                            next_dir = Directions.NORTH
-
-                        solution.append(next_dir)
 
                     final_solution = []
                     for i in range(len(solution)):
                         final_solution.append(solution[-(i+1)])
-                    print(final_solution)
+                    print("Final solution: ", final_solution)
                     return final_solution
 
-                frontier.push(Node(parentNode, child[0]))
+                # print("adding to frontier: ", parentNode.state, parentNode.movement, child[0], child[1])
+                frontier.push(Node(parentNode, child[0], child[1]))
 
     print("you failed")
     return False
