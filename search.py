@@ -221,14 +221,14 @@ def uniformCostSearch(problem):
             # add children to frontier
             for child in problem.getSuccessors(cur_node.state):
                 # create node for current child state
-                temp_node = Node(cur_node, child[0], child[1])
+                child_node = Node(cur_node, child[0], child[1])
 
                 # calculate overall path cost by adding next step to parent's path cost
                 next_action_cost = child[2]
-                temp_node.setPathCost(cur_node.path_cost + next_action_cost)
+                child_node.setPathCost(cur_node.path_cost + next_action_cost)
 
-                # push node to frontier 
-                frontier.push(temp_node, temp_node.path_cost)
+                # push node to frontier ordered by path cost
+                frontier.push(child_node, child_node.path_cost)
 
     # if frontier is empty without solution, return failure
     return []
@@ -243,46 +243,56 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    # create tree root at start state
+    cur_node = Node(None, problem.getStartState(), None)
+    cur_node.setPathCost(0)
 
-    node = Node(None, problem.getStartState(), None)
-    node.setPathCost(0)
+    # initialize frontier and explored set
     frontier = util.PriorityQueue()
-    frontier.push(node, node.path_cost + heuristic(node.state, problem))
     explored = set()
 
+    # add root node to frontier
+    frontier.push(cur_node, cur_node.path_cost + heuristic(cur_node.state, problem))
+
+    # while frontier is not empty, continue loop
     while(not frontier.isEmpty()):
-        parentNode = frontier.pop()
-        # print("FRONTIER: ", frontier.isEmpty())
-        # print("Parent node is ", parentNode.state)
-
-        if(problem.isGoalState(parentNode.state)):
+        # get next node from frontier
+        cur_node = frontier.pop()
+        
+        # check if state is goal state
+        if(problem.isGoalState(cur_node.state)):
+            # if it is, go back up to root to create list of actions
             solution = []
-            node = parentNode
+            while (cur_node.parent is not None):
+                solution.append(cur_node.movement)
+                cur_node = cur_node.parent
 
-            while (node.parent is not None):
-                solution.append(node.movement)
-                node = node.parent
-
+            # reverse actions so they go from start -> finish
             final_solution = []
             for i in range(len(solution)):
                 final_solution.append(solution[-(i+1)])
+
+            # return list of actions
             return final_solution
 
-        
+        # check if state is in explored
+        if cur_node.state not in explored:
+            # if not, add it
+            explored.add(cur_node.state)
 
-        # print("Expanding node", parentNode.state, ", already explored: ", explored, "already already explored?", parentNode.state in explored)
-        if parentNode.state not in explored:
-            explored.add(parentNode.state)
+            # add children to frontier
+            for child in problem.getSuccessors(cur_node.state):
+                # create node for next state
+                child_node = Node(cur_node, child[0], child[1])
 
-            for child in problem.getSuccessors(parentNode.state):
-            
-                temp_node = Node(parentNode, child[0], child[1])
+                # calculate child path cost by adding cost of next step to parent's path cost
                 next_action_cost = child[2]
-                temp_node.setPathCost(parentNode.path_cost + next_action_cost)
+                child_node.setPathCost(cur_node.path_cost + next_action_cost)
 
-                frontier.push(temp_node, temp_node.path_cost + heuristic(temp_node.state, problem))
+                # push node to frontier ordered by heuristic
+                frontier.push(child_node, child_node.path_cost + heuristic(child_node.state, problem))
 
-
+    # if it doesn't find a solution, return failure
     return []
 
 
