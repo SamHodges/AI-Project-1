@@ -18,7 +18,9 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+from game import Directions
 
+# node class to keep track of path
 class Node:
     def __init__(self, parent, state, movement):
         self.parent = parent
@@ -99,43 +101,46 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    #util.raiseNotDefined()
-    from game import Directions
+    # start at given position
+    cur_node = Node(None, problem.getStartState(), None)
 
-    node = Node(None, problem.getStartState(), None)
-    if(problem.isGoalState(node.state)):
-        return []
+    # initialize frontier and explored
     frontier = util.Stack()
-    frontier.push(node)
     explored = set()
 
+    # push first node to frontier
+    frontier.push(cur_node)
+    
+    # while more nodes are on the frontier, continue
     while(not frontier.isEmpty()):
-        parentNode = frontier.pop()
+        # get the next state to look into
+        cur_node = frontier.pop()
 
-
-        if(problem.isGoalState(parentNode.state)):
+        # check if current node is the goal state
+        if(problem.isGoalState(cur_node.state)):
+            # if it is a solution, move back up the tree to get the correct list of movements
             solution = []
-            node = parentNode
-            while (node.parent is not None):
-                solution.append(node.movement)
-                node = node.parent
+            while (cur_node.parent is not None):
+                solution.append(cur_node.movement)
+                cur_node = cur_node.parent
 
+            # reverse the list of movements so it's from start -> finish
             final_solution = []
             for i in range(len(solution)):
                 final_solution.append(solution[-(i+1)])
+
+            # return solution
             return final_solution
 
-        if parentNode.state not in explored:
-            explored.add(parentNode.state)
-            for child in problem.getSuccessors(parentNode.state):
-                # print("adding to frontier: ", parentNode.state, parentNode.movement, child[0], child[1])
-                frontier.push(Node(parentNode, child[0], child[1]))
+        # if not a solution, check if it's been explored
+        if cur_node.state not in explored:
+            # if not, add it to explored and its children to the frontier
+            explored.add(cur_node.state)
+            for child in problem.getSuccessors(cur_node.state):
+                frontier.push(Node(cur_node, child[0], child[1]))
 
-    print("you failed")
-    return False
-    # print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    # print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    # util.raiseNotDefined()
+    # if frontier is empty without a solution, search has failed
+    return []
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -159,7 +164,7 @@ def breadthFirstSearch(problem):
             node = parentNode
             while (node.parent is not None):
                 solution.append(node.movement)
-                print(node.state)
+                print()
 
                 node = node.parent
 
