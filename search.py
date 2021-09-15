@@ -178,6 +178,8 @@ def breadthFirstSearch(problem):
                 # print("adding to frontier: ", parentNode.state, parentNode.movement, child[0], child[1])
                 frontier.push(Node(parentNode, child[0], child[1]))
 
+    return []
+
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"

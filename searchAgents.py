@@ -273,10 +273,23 @@ class CornersProblem(search.SearchProblem):
     You must select a suitable state space and successor function
     """
 
-    class Node:
-        def __init__(self, state, children):
-            self.state = state
-            self.children = children 
+    # class Node:
+    #     def __init__(self, state, children):
+    #         self.state = state
+    #         self.children = children 
+
+    # class Tree:
+    #     def __init__(self, root):
+    #         self.root = root
+
+    #     def add_children_root(self, children, parent):
+    #         node = self.root
+    #         for child in node.children:
+    #             add_children(children, parent, child)
+
+    #     def add_children(self, children, parent, node):
+    #         if node.state == parent and node
+
 
     def __init__(self, startingGameState):
         """
@@ -293,33 +306,43 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.corner_array = [0,0,0,0]
-        root = self.startingPosition
+        # self.corner_array = [0,0,0,0]
+        # self.root = Node(self.startingPosition, [])
+        # self.tree = Tree(self.root)
+        self.goals = {}
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        print("running getStartState")
-        print("Starting at ", self.startingPosition)
+        # print("running getStartState")
+        # print("Starting at ", self.startingPosition)
         return self.startingPosition
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        print("running isGoalState")
+        try:
+            corner_array = self.goals[state].copy()
+        except:
+            corner_array = [0,0,0,0]
+
         for i in range(len(self.corners)):
             if state == self.corners[i]:
-                self.corner_array[i] = 1
+                corner_array[i] = 1
 
-        print("current state: ", state, ", goals: ", self.corner_array, "corners: ", self.corners)
-        if 0 not in self.corner_array:
+        # print("All goals: ", self.goals)
+        if 0 not in corner_array:
             return True
+
+        if 1 in corner_array:
+            self.goals[state] = corner_array
 
         return False
 
+        
        
 
     def getSuccessors(self, state):
@@ -332,7 +355,7 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-        print("running getSuccessors")
+        # print("running getSuccessors")
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -353,7 +376,14 @@ class CornersProblem(search.SearchProblem):
                 successors.append(cur_successor)
 
         self._expanded += 1 # DO NOT CHANGE
-        print("current state: ", state, ", successors: ", successors)
+        # print("current state: ", state, ", successors: ", successors)
+        try:
+            corner_array = self.goals[state]
+            del self.goals[state]
+            for successor in successors:
+                self.goals[successor[0]] = corner_array
+        except:
+            pass
         return successors
 
     def getCostOfActions(self, actions):
