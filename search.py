@@ -145,8 +145,6 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    from game import Directions
-    print("starting bfs")
 
     node = Node(None, problem.getStartState(), None)
     if(problem.isGoalState(node.state)):
@@ -183,49 +181,56 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    from game import Directions
+    # initialize root of tree at starting state
+    cur_node = Node(None, problem.getStartState(), None)
+    cur_node.setPathCost(0)
 
-    print "Start:", problem.getStartState()
-    node = Node(None, problem.getStartState(), None)
-    if(problem.isGoalState(node.state)):
-        return []
-    node.setPathCost(0)
+    # initialize empty frontier and explored sets
     frontier = util.PriorityQueue()
-    frontier.push(node, node.path_cost)
     explored = set()
 
+    # push node to frontier, organized by path cost
+    frontier.push(cur_node, cur_node.path_cost)
+
+    # while more states in frontier, continue
     while(not frontier.isEmpty()):
-        parentNode = frontier.pop()
-        # print("FRONTIER: ", frontier.isEmpty())
-        # print("Parent node is ", parentNode.state)
+        # get next state from frontier
+        cur_node = frontier.pop()
 
-        if(problem.isGoalState(parentNode.state)):
+        # check if current node is a solution
+        if(problem.isGoalState(cur_node.state)):
+            # if it is, go back up through tree to get list of actions
             solution = []
-            node = parentNode
+            while (cur_node.parent is not None):
+                solution.append(cur_node.movement)
+                cur_node = cur_node.parent
 
-            while (node.parent is not None):
-                solution.append(node.movement)
-                node = node.parent
-
+            # reverse list of actions so it's from start -> finish
             final_solution = []
             for i in range(len(solution)):
                 final_solution.append(solution[-(i+1)])
+
+            # return list of actions
             return final_solution
 
-        if parentNode.state not in explored:
-            explored.add(parentNode.state)
+        # check if current state has been explored
+        if cur_node.state not in explored:
+            # if not, add it to explored
+            explored.add(cur_node.state)
 
-            for child in problem.getSuccessors(parentNode.state):
-            
-                temp_node = Node(parentNode, child[0], child[1])
+            # add children to frontier
+            for child in problem.getSuccessors(cur_node.state):
+                # create node for current child state
+                temp_node = Node(cur_node, child[0], child[1])
+
+                # calculate overall path cost by adding next step to parent's path cost
                 next_action_cost = child[2]
-                temp_node.setPathCost(parentNode.path_cost + next_action_cost)
+                temp_node.setPathCost(cur_node.path_cost + next_action_cost)
 
-                        # print("Looking at child ", child[0])
-                # print("Not in ", explored, " or ", temp_frontier)
+                # push node to frontier 
                 frontier.push(temp_node, temp_node.path_cost)
 
-
+    # if frontier is empty without solution, return failure
     return []
 
 def nullHeuristic(state, problem=None):
@@ -238,9 +243,7 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    from game import Directions
 
-    print "Start:", problem.getStartState()
     node = Node(None, problem.getStartState(), None)
     node.setPathCost(0)
     frontier = util.PriorityQueue()
