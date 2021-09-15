@@ -289,6 +289,7 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
         self.corner_array = [0,0,0,0]
+        # root = 
 
     def getStartState(self):
         """
