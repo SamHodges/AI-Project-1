@@ -230,37 +230,15 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         
 
         # print("Expanding node", parentNode.state, ", already explored: ", explored, "already already explored?", parentNode.state in explored)
-        explored.add(parentNode.state)
-        for child in problem.getSuccessors(parentNode.state):
-            temp_frontier = []
-            in_frontier = False
+        if parentNode.state not in explored:
+            explored.add(parentNode.state)
 
-            temp_node = Node(parentNode, child[0], child[1])
-            next_action_cost = child[2]
-            temp_node.setPathCost(parentNode.path_cost + next_action_cost)
-
-            while(not frontier.isEmpty()):
-                cur_frontier = frontier.pop()
-                
-                if cur_frontier.state == child[0]:
-                    if (cur_frontier.path_cost > temp_node.path_cost):
-                        temp_frontier.append(temp_node)
-                    else:
-                        temp_frontier.append(cur_frontier)
-                    in_frontier = True
-                    break
-                else:
-                    temp_frontier.append(cur_frontier)
-                    
-                
-
-            for i in range(len(temp_frontier)):
-                frontier.push(temp_frontier[i], temp_frontier[i].path_cost + heuristic(temp_frontier[i].state, problem))
+            for child in problem.getSuccessors(parentNode.state):
             
+                temp_node = Node(parentNode, child[0], child[1])
+                next_action_cost = child[2]
+                temp_node.setPathCost(parentNode.path_cost + next_action_cost)
 
-            if (child[0] not in explored and not in_frontier):
-                # print("Looking at child ", child[0], explored)
-                # print("Not in ", explored, " or ", temp_frontier)
                 frontier.push(temp_node, temp_node.path_cost + heuristic(temp_node.state, problem))
 
 
