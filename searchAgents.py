@@ -349,7 +349,7 @@ class CornersProblem(search.SearchProblem):
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
                 nextState = (nextx, nexty)
-                cur_successor = [nextState, action, 1]
+                cur_successor = (nextState, action, 1)
                 successors.append(cur_successor)
 
         self._expanded += 1 # DO NOT CHANGE
@@ -388,7 +388,19 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    #STEP 1: corner check
+    #check which corners have been found so far
+    unchecked = []
+
+    #STEP 2: euclidian loop
+    cur_pos = state
+    total_dis = 0
+    for corner in unchecked:        
+        cur_dis =  ( (cur_pos[0] - corner[0]) ** 2 + (cur_pos[1] - corner[1]) ** 2 ) ** 0.5
+        total_dis += cur_dis
+        cur_pos = corner
+
+    return total_dis
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
