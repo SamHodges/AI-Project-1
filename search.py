@@ -140,7 +140,40 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from game import Directions
+    print("starting bfs")
+
+    node = Node(None, problem.getStartState(), None)
+    if(problem.isGoalState(node.state)):
+        return []
+    frontier = util.Stack()
+    frontier.push(node)
+    explored = set()
+
+    while(not frontier.isEmpty()):
+        parentNode = frontier.pop()
+
+
+        if(problem.isGoalState(parentNode.state)):
+            solution = []
+            node = parentNode
+            while (node.parent is not None):
+                solution.append(node.movement)
+                print(node.state)
+
+                node = node.parent
+
+            final_solution = []
+            for i in range(len(solution)):
+                final_solution.append(solution[-(i+1)])
+            print("SOLUTION HERE: ", final_solution)
+            return final_solution
+
+        if parentNode.state not in explored:
+            explored.add(parentNode.state)
+            for child in problem.getSuccessors(parentNode.state):
+                # print("adding to frontier: ", parentNode.state, parentNode.movement, child[0], child[1])
+                frontier.push(Node(parentNode, child[0], child[1]))
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
