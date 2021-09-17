@@ -400,18 +400,33 @@ def cornersHeuristic(state, problem):
     unchecked = []
     checked_corners = list(state[1])
     for i in range(len(corners)):
-        if checked_corners == 0:
+        if checked_corners[i] == 0:
             unchecked.append(corners[i])
 
     #STEP 2: euclidian loop
     cur_pos = state[0]
     total_dis = 0
-    for corner in unchecked:        
-        cur_dis =  ( (cur_pos[0] - corner[0]) ** 2 + (cur_pos[1] - corner[1]) ** 2 ) ** 0.5
-        total_dis += cur_dis
-        cur_pos = corner
+    
 
-    print("Distance: ", total_dis)
+    while len(unchecked) > 0:
+        shortest_dist = ( (cur_pos[0] - unchecked[0][0]) ** 2 + (cur_pos[1] - unchecked[0][1]) ** 2 ) ** 0.5
+        shortest_state = 0
+
+        for i in range(1, len(unchecked)):        
+            cur_dis =  ( (cur_pos[0] - unchecked[i][0]) ** 2 + (cur_pos[1] - unchecked[i][1]) ** 2 ) ** 0.5
+            if cur_dis < shortest_dist:
+                shortest_dist = cur_dis
+                shortest_state = i
+            cur_pos = unchecked[i]
+
+        cur_pos = unchecked[shortest_state]
+        del unchecked[shortest_state]
+        total_dis += shortest_dist
+
+
+
+
+    # print("Distance: ", total_dis, unchecked)
     return total_dis
 
 class AStarCornersAgent(SearchAgent):
