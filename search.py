@@ -145,40 +145,37 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-
+#util.raiseNotDefined()
+    from game import Directions
     node = Node(None, problem.getStartState(), None)
     if(problem.isGoalState(node.state)):
         return []
-    frontier = util.Stack()
+    frontier = util.Queue()
     frontier.push(node)
     explored = set()
 
     while(not frontier.isEmpty()):
         parentNode = frontier.pop()
 
-
-        if(problem.isGoalState(parentNode.state)):
+        if (problem.isGoalState(parentNode.state)):
+            print "Found solution!"
             solution = []
             node = parentNode
             while (node.parent is not None):
                 solution.append(node.movement)
-                print()
-
                 node = node.parent
-
             final_solution = []
             for i in range(len(solution)):
-                final_solution.append(solution[-(i+1)])
-            print("SOLUTION HERE: ", final_solution)
+                final_solution.append(solution[-(i + 1)])
             return final_solution
-
-        if parentNode.state not in explored:
+        if(parentNode.state not in explored):
             explored.add(parentNode.state)
             for child in problem.getSuccessors(parentNode.state):
-                # print("adding to frontier: ", parentNode.state, parentNode.movement, child[0], child[1])
-                frontier.push(Node(parentNode, child[0], child[1]))
+                if (child[0] not in explored):
+                    frontier.push(Node(parentNode,child[0], child[1]))
 
-    return []
+    print('you failed')
+    return False
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""

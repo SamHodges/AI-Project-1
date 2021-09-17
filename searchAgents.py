@@ -273,22 +273,7 @@ class CornersProblem(search.SearchProblem):
     You must select a suitable state space and successor function
     """
 
-    # class Node:
-    #     def __init__(self, state, children):
-    #         self.state = state
-    #         self.children = children 
-
-    # class Tree:
-    #     def __init__(self, root):
-    #         self.root = root
-
-    #     def add_children_root(self, children, parent):
-    #         node = self.root
-    #         for child in node.children:
-    #             add_children(children, parent, child)
-
-    #     def add_children(self, children, parent, node):
-    #         if node.state == parent and node
+    
 
 
     def __init__(self, startingGameState):
@@ -306,10 +291,6 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        # self.corner_array = [0,0,0,0]
-        # self.root = Node(self.startingPosition, [])
-        # self.tree = Tree(self.root)
-        self.goals = {}
 
     def getStartState(self):
         """
@@ -318,29 +299,20 @@ class CornersProblem(search.SearchProblem):
         """
         # print("running getStartState")
         # print("Starting at ", self.startingPosition)
-        return self.startingPosition
+        startState = (self.startingPosition, (0,0,0,0))
+        return startState
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        try:
-            corner_array = self.goals[state].copy()
-        except:
-            corner_array = [0,0,0,0]
+        corners_array = list(state[1])
 
-        for i in range(len(self.corners)):
-            if state == self.corners[i]:
-                corner_array[i] = 1
-
-        # print("All goals: ", self.goals)
-        if 0 not in corner_array:
+        if 0 not in state[1]:
             return True
 
-        if 1 in corner_array:
-            self.goals[state] = corner_array
-
         return False
+
 
         
        
@@ -366,24 +338,29 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            x,y = state
+            coordinates, corners = state
+            x, y = coordinates
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
-                nextState = (nextx, nexty)
+                corners_array = list(corners)
+                for i in range(len(self.corners)):
+                    if (nextx, nexty) == self.corners[i]:
+                        corners_array[i] = 1
+
+                nextState = ((nextx, nexty), tuple(corners_array))
+                # print(nextState)
                 cur_successor = (nextState, action, 1)
                 successors.append(cur_successor)
 
         self._expanded += 1 # DO NOT CHANGE
         # print("current state: ", state, ", successors: ", successors)
-        try:
-            corner_array = self.goals[state]
-            del self.goals[state]
-            for successor in successors:
-                self.goals[successor[0]] = corner_array
-        except:
-            pass
+
+            # 
+
+
+
         return successors
 
     def getCostOfActions(self, actions):
@@ -421,15 +398,20 @@ def cornersHeuristic(state, problem):
     #STEP 1: corner check
     #check which corners have been found so far
     unchecked = []
+    checked_corners = list(state[1])
+    for i in range(len(corners)):
+        if checked_corners == 0:
+            unchecked.append(corners[i])
 
     #STEP 2: euclidian loop
-    cur_pos = state
+    cur_pos = state[0]
     total_dis = 0
     for corner in unchecked:        
         cur_dis =  ( (cur_pos[0] - corner[0]) ** 2 + (cur_pos[1] - corner[1]) ** 2 ) ** 0.5
         total_dis += cur_dis
         cur_pos = corner
 
+    print("Distance: ", total_dis)
     return total_dis
 
 class AStarCornersAgent(SearchAgent):
