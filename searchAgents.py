@@ -607,7 +607,43 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        class Node:
+            def __init__(self, parent, state, movement):
+                self.parent = parent
+                self.state = state
+                self.movement = movement
+
+        startNode = Node(None, startPosition, None)
+        frontier = util.Queue()
+        frontier.push(startNode)
+        explored = set()
+
+        while(not frontier.isEmpty()):
+            node = frontier.pop()
+            # print("current node: ", node.state)
+            if problem.isGoalState(node.state):
+                # print("yay a goal!")
+                solution = []
+                while (node.parent is not None):
+                    solution.append(node.movement)
+                    node = node.parent
+
+                # reverse the list of movements so it's from start -> finish
+                final_solution = []
+                for i in range(len(solution)):
+                    final_solution.append(solution[-(i+1)])
+
+                # return solution
+                # print("returning solution")
+                return final_solution
+
+            if node.state not in explored:
+                explored.add(node.state)
+                for child in problem.getSuccessors(node.state):
+                    frontier.push(Node(node, child[0], child[1]))
+
+        return []
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -643,7 +679,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
     """
