@@ -417,7 +417,6 @@ def cornersHeuristic(state, problem):
             if cur_dis < shortest_dist:
                 shortest_dist = cur_dis
                 shortest_state = i
-            cur_pos = unchecked[i]
 
         cur_pos = unchecked[shortest_state]
         del unchecked[shortest_state]
@@ -522,60 +521,57 @@ def foodHeuristic(state, problem):
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
 
+    class Node:
+        def __init__(self, parent, state, distance):
+            self.parent = parent
+            self.state = state
+            self.distance = distance
+
     unchecked = foodGrid.asList()
-    # print("WALLS:")
-    # print(problem.walls[0][0])
 
-
-    #STEP 2: euclidian loop
-    cur_pos = position
-    total_dis = 0
-    first = True
-    first_food = None
-    
     if len(unchecked) == 0:
         return 0
 
-    while len(unchecked) > 0:
-        shortest_dist = ( (cur_pos[0] - unchecked[0][0]) ** 2 + (cur_pos[1] - unchecked[0][1]) ** 2 ) ** 0.5
-        shortest_state = 0
+    total_dis = None
+    # print(problem.walls)
 
-        for i in range(1, len(unchecked)):        
-            cur_dis =  ( (cur_pos[0] - unchecked[i][0]) ** 2 + (cur_pos[1] - unchecked[i][1]) ** 2 ) ** 0.5
-            if cur_dis < shortest_dist:
-                shortest_dist = cur_dis
-                shortest_state = i
-            cur_pos = unchecked[i]
+    for goal in unchecked:
+        # print("GOAL", goal)
+        node = Node(None, position, 0)
+        if(node.state == goal):
+            return []
 
-        cur_pos = unchecked[shortest_state]
-        if first:
-            first = False
-            first_food = cur_pos
-        if first_food is None:
-            print(first, cur_pos)
+        frontier = util.Queue()
+        frontier.push(node)
+        explored = set()
 
-        del unchecked[shortest_state]
-        total_dis += shortest_dist
+        while(not frontier.isEmpty()):
+            parentNode = frontier.pop()
 
-    if first_food is None:
-        print(first, cur_pos)
+            if (parentNode.state == goal or parentNode.distance == 2):
+                # print "Found solution!"
+                node = parentNode
 
-    extra_cost = 0
-    if position[0]-first_food[0] > 0:
-        if problem.walls[cur_pos[0]-1][cur_pos[1]]:
-            extra_cost += 0.1
-    elif position[0]-first_food[0] < 0:
-        if problem.walls[cur_pos[0]+1][cur_pos[1]]:
-            extra_cost += 0.1
-    if position[1]-first_food[1] > 0:
-        if problem.walls[cur_pos[0]][cur_pos[1]-1]:
-            extra_cost += 0.1
-    elif position[1]-first_food[1] < 0:
-        if problem.walls[cur_pos[0]-1][cur_pos[1]+1]:
-            extra_cost += 0.1
+                if total_dis is None:
+                    total_dis = node.distance
+                elif total_dis > node.distance:
+                    total_dis = node.distance
+                
+            if(parentNode.state not in explored):
+                explored.add(parentNode.state)
+                for child in [(parentNode.state[0], parentNode.state[1] + 1), (parentNode.state[0], parentNode.state[1]-1), (parentNode.state[0]+1, parentNode.state[1]), (parentNode.state[0]-1, parentNode.state[1])]:
+                    # print(child[0], child[1])
+                    if not problem.walls[child[0]][child[1]]:
+                            #print("SUCCESS", child, parentNode.state, problem.walls[child[0]-1][child[1]-1])
+                        if (child not in explored):
+                                # print("just added: ", parentNode.state, child)
+                            frontier.push(Node(parentNode,child, parentNode.distance + 1))
 
 
-    # print("Distance: ", total_dis, unchecked)
+    # if total_dis is None:
+    #     print(unchecked, position)
+    #     print(problem.walls)
+    #     return 0
     return total_dis #+ extra_cost
 
 class ClosestDotSearchAgent(SearchAgent):
