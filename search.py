@@ -140,42 +140,59 @@ def depthFirstSearch(problem):
                 frontier.push(Node(cur_node, child[0], child[1]))
 
     # if frontier is empty without a solution, search has failed
-    return []
+    return None
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-#util.raiseNotDefined()
-    from game import Directions
+    # start at given state
     node = Node(None, problem.getStartState(), None)
+
+    #check if starting at goal state
     if(problem.isGoalState(node.state)):
         return []
+
+    # if not create frontier and explored set
     frontier = util.Queue()
-    frontier.push(node)
     explored = set()
 
-    while(not frontier.isEmpty()):
-        parentNode = frontier.pop()
+    # add initial state to frontier
+    frontier.push(node)
 
-        if (problem.isGoalState(parentNode.state)):
-            print "Found solution!"
+    # continue until frontier is empty or solution is found
+    while(not frontier.isEmpty()):
+        # get next node from frontier
+        cur_node = frontier.pop()
+
+        # check if it's a goal state
+        if (problem.isGoalState(cur_node.state)):
+            # if it is, return solution
             solution = []
-            node = parentNode
+            node = cur_node
+            # go back up tree until you reach the initial node
             while (node.parent is not None):
                 solution.append(node.movement)
                 node = node.parent
+
+            # reverse order of actions for solution
             final_solution = []
             for i in range(len(solution)):
                 final_solution.append(solution[-(i + 1)])
-            return final_solution
-        if(parentNode.state not in explored):
-            explored.add(parentNode.state)
-            for child in problem.getSuccessors(parentNode.state):
-                if (child[0] not in explored):
-                    frontier.push(Node(parentNode,child[0], child[1]))
 
-    print('you failed')
-    return False
+            # return list of actions
+            return final_solution
+
+        # check if node state is in explored state
+        if(cur_node.state not in explored):
+            # add it to explored set
+            explored.add(cur_node.state)
+            for child in problem.getSuccessors(cur_node.state):
+                # add children to frontier if they haven't been explored
+                if (child[0] not in explored):
+                    frontier.push(Node(cur_node,child[0], child[1]))
+
+    # if frontier is Empty without a solution, search has failed
+    return None
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -230,7 +247,7 @@ def uniformCostSearch(problem):
                 frontier.push(child_node, child_node.path_cost)
 
     # if frontier is empty without solution, return failure
-    return []
+    return None
 
 def nullHeuristic(state, problem=None):
     """
@@ -292,7 +309,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 frontier.push(child_node, child_node.path_cost + heuristic(child_node.state, problem))
 
     # if it doesn't find a solution, return failure
-    return []
+    return None
 
 
 # Abbreviations

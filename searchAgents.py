@@ -297,8 +297,7 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        # print("running getStartState")
-        # print("Starting at ", self.startingPosition)
+        # implement state as position and whether 4 corners have been visited
         startState = (self.startingPosition, (0,0,0,0))
         return startState
 
@@ -308,9 +307,11 @@ class CornersProblem(search.SearchProblem):
         """
         corners_array = list(state[1])
 
+        # check if all corners were visited, and if true it's a goal
         if 0 not in state[1]:
             return True
 
+        # if not, it's not a goal
         return False
 
 
@@ -327,7 +328,6 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-        # print("running getSuccessors")
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -520,6 +520,7 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
+
 
     unchecked = foodGrid.asList()
     # print("WALLS:")
