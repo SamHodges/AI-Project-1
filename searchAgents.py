@@ -528,47 +528,23 @@ def foodHeuristic(state, problem):
 
     #STEP 2: euclidian loop
     cur_pos = position
-    total_dis = 0
-    first = True
-    first_food = None
-    
-    if len(unchecked) == 0:
-        return 0
+    smalls = [cur_pos[0], cur_pos[1]]
+    bigs = [cur_pos[0], cur_pos[1]]
 
-    for i in range(1):
-        shortest_dist = abs(cur_pos[0] - unchecked[0][0]) + abs(cur_pos[1] - unchecked[0][1])
-        shortest_state = 0
+    for food_pos in unchecked:
+        if food_pos[0] > bigs[0]:
+            bigs[0] = food_pos[0]
+        elif food_pos[0] < smalls[0]:
+            smalls[0] = food_pos[0]
 
-        for i in range(1, len(unchecked)):        
-            cur_dis =  abs(cur_pos[0] - unchecked[i][0]) + abs(cur_pos[1] - unchecked[i][1])
-            if cur_dis > shortest_dist:
-                shortest_dist = cur_dis
-                shortest_state = i
+        if food_pos[1] > bigs[1]:
+            bigs[1] = food_pos[1]
+        elif food_pos[1] < smalls[1]:
+            smalls[1] = food_pos[1]
 
-        cur_pos = unchecked[shortest_state]
-        
+    total_dis = abs(smalls[0] - bigs[0]) + abs(smalls[1] - bigs[1])
 
-        del unchecked[shortest_state]
-        total_dis += shortest_dist
-
-    
-    # extra_cost = 0
-    # if position[0]-first_food[0] > 0:
-    #     if problem.walls[cur_pos[0]-1][cur_pos[1]]:
-    #         extra_cost += 0.1
-    # elif position[0]-first_food[0] < 0:
-    #     if problem.walls[cur_pos[0]+1][cur_pos[1]]:
-    #         extra_cost += 0.1
-    # if position[1]-first_food[1] > 0:
-    #     if problem.walls[cur_pos[0]][cur_pos[1]-1]:
-    #         extra_cost += 0.1
-    # elif position[1]-first_food[1] < 0:
-    #     if problem.walls[cur_pos[0]-1][cur_pos[1]+1]:
-    #         extra_cost += 0.1
-
-
-    # print("Distance: ", total_dis, unchecked)
-    return total_dis #+ extra_cost
+    return total_dis
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
