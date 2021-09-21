@@ -314,10 +314,6 @@ class CornersProblem(search.SearchProblem):
         # if not, it's not a goal
         return False
 
-
-        
-       
-
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -338,29 +334,34 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            # set current state position
             coordinates, corners = state
             x, y = coordinates
+
+            # set next state position
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
+
+            # check if it's possible to move in that direction
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
+                # check if food/corner is at next position
                 corners_array = list(corners)
                 for i in range(len(self.corners)):
                     if (nextx, nexty) == self.corners[i]:
                         corners_array[i] = 1
 
+                # create next state depending on next position and how many corners have been checked
                 nextState = ((nextx, nexty), tuple(corners_array))
-                # print(nextState)
+
+                # append as a successor with action and cost
                 cur_successor = (nextState, action, 1)
                 successors.append(cur_successor)
 
+        # "expand" 1 more node
         self._expanded += 1 # DO NOT CHANGE
-        # print("current state: ", state, ", successors: ", successors)
 
-            # 
-
-
-
+        # return list of successors 
         return successors
 
     def getCostOfActions(self, actions):
@@ -368,7 +369,6 @@ class CornersProblem(search.SearchProblem):
         Returns the cost of a particular sequence of actions.  If those actions
         include an illegal move, return 999999.  This is implemented for you.
         """
-        print("running getCostOfActions")
         if actions == None: return 999999
         x,y= self.startingPosition
         for action in actions:
@@ -395,37 +395,40 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    #STEP 1: corner check
-    #check which corners have been found so far
+    # create a list of unvisited corners
     unchecked = []
     checked_corners = list(state[1])
     for i in range(len(corners)):
         if checked_corners[i] == 0:
             unchecked.append(corners[i])
 
-    #STEP 2: euclidian loop
+    # start at current coordiantes with distance = 0
     cur_pos = state[0]
     total_dis = 0
     
-
+    # while corners remain unchecked
     while len(unchecked) > 0:
+        # shortest distance must be at least distance to first point
         shortest_dist = ( (cur_pos[0] - unchecked[0][0]) ** 2 + (cur_pos[1] - unchecked[0][1]) ** 2 ) ** 0.5
         shortest_state = 0
 
+        # loop through other potential next steps to see if any are closer
         for i in range(1, len(unchecked)):        
             cur_dis =  ( (cur_pos[0] - unchecked[i][0]) ** 2 + (cur_pos[1] - unchecked[i][1]) ** 2 ) ** 0.5
             if cur_dis < shortest_dist:
                 shortest_dist = cur_dis
                 shortest_state = i
 
+        # set current position to closest corner
         cur_pos = unchecked[shortest_state]
+
+        # don't come back to this corner
         del unchecked[shortest_state]
+
+        # add approx distance to this corner to approximation
         total_dis += shortest_dist
 
-
-
-
-    # print("Distance: ", total_dis, unchecked)
+    # return distance of position + between all corners
     return total_dis
 
 class AStarCornersAgent(SearchAgent):
@@ -520,31 +523,34 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-
-
+    # find all food we haven't eaten yet
     unchecked = foodGrid.asList()
-    # print("WALLS:")
-    # print(problem.walls[0][0])
 
-
-    #STEP 2: euclidian loop
+    # set current position to pacman's position
     cur_pos = position
+
+    # smallest and biggest (x,y) combos must be at least as far as current position
     smalls = [cur_pos[0], cur_pos[1]]
     bigs = [cur_pos[0], cur_pos[1]]
 
+    # go through uneaten food
     for food_pos in unchecked:
+        # find most extreme x coordinates 
         if food_pos[0] > bigs[0]:
             bigs[0] = food_pos[0]
         elif food_pos[0] < smalls[0]:
             smalls[0] = food_pos[0]
 
+        # find most extreme y coordinates
         if food_pos[1] > bigs[1]:
             bigs[1] = food_pos[1]
         elif food_pos[1] < smalls[1]:
             smalls[1] = food_pos[1]
 
+    # must travel minimum of least to most for x and y, so find distance between the extremes
     total_dis = abs(smalls[0] - bigs[0]) + abs(smalls[1] - bigs[1])
 
+    # return distance
     return total_dis
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -576,23 +582,31 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-
+        # create a node class to use for BFS
         class Node:
             def __init__(self, parent, state, movement):
                 self.parent = parent
                 self.state = state
                 self.movement = movement
 
+        # start at current position
         startNode = Node(None, startPosition, None)
+
+        # initialize frontier and explored set
         frontier = util.Queue()
-        frontier.push(startNode)
         explored = set()
 
+        # push first state as node to frontier
+        frontier.push(startNode)
+
+        # continue until frontier is empty
         while(not frontier.isEmpty()):
+            # grab next node from frontier
             node = frontier.pop()
-            # print("current node: ", node.state)
+
+            # check if node is a goal state
             if problem.isGoalState(node.state):
-                # print("yay a goal!")
+                # if it is, go up tree until it hits the root
                 solution = []
                 while (node.parent is not None):
                     solution.append(node.movement)
@@ -604,15 +618,19 @@ class ClosestDotSearchAgent(SearchAgent):
                     final_solution.append(solution[-(i+1)])
 
                 # return solution
-                # print("returning solution")
                 return final_solution
 
+            # check if node has been explored yet
             if node.state not in explored:
+                # add to explored set so not explored again
                 explored.add(node.state)
+
+                # add children to frontier
                 for child in problem.getSuccessors(node.state):
                     frontier.push(Node(node, child[0], child[1]))
 
-        return []
+        # return failure if no solution is found
+        return None
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -648,6 +666,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        # if at a position with food, return true
         return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
